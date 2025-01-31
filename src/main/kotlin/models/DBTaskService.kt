@@ -2,18 +2,10 @@ package com.example.models
 
 import com.example.db.tables.Task
 import kotlinx.coroutines.Dispatchers
-import kotlinx.serialization.Serializable
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import org.jetbrains.exposed.sql.transactions.transaction
-
-@Serializable
-data class ExposedTask(
-    val id: Int? = null,
-    val title: String,
-    val completed: Boolean,
-)
 
 class DBTaskService(
     database: Database,

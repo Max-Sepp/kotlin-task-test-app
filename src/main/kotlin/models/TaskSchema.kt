@@ -10,6 +10,7 @@ import org.jetbrains.exposed.sql.transactions.transaction
 
 @Serializable
 data class ExposedTask(
+    val id: Int? = null,
     val title: String,
     val completed: Boolean,
 )
@@ -37,30 +38,36 @@ class DBTaskService(
             .where { Task.id eq id }
             .map {
                 ExposedTask(
+                    it[Task.id],
                     it[Task.title],
                     it[Task.completed],
                 )
             }.firstOrNull()
 
     override suspend fun readAll(): List<ExposedTask> =
-        Task
-            .selectAll()
-            .map {
-                ExposedTask(
-                    it[Task.title],
-                    it[Task.completed],
-                )
-            }
+        transaction {
+            Task
+                .selectAll()
+                .map {
+                    ExposedTask(
+                        it[Task.id],
+                        it[Task.title],
+                        it[Task.completed],
+                    )
+                }
+        }
 
     override suspend fun update(
         id: Int,
         task: ExposedTask,
     ) {
-        Task
-            .update({ Task.id eq id }) {
-                it[title] = task.title
-                it[completed] = task.completed
-            }
+        transaction {
+            Task
+                .update({ Task.id eq id }) {
+                    it[title] = task.title
+                    it[completed] = task.completed
+                }
+        }
     }
 
     override suspend fun delete(id: Int) {

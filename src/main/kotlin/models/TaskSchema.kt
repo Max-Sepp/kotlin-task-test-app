@@ -33,19 +33,21 @@ class DBTaskService(
         }
 
     override suspend fun read(id: Int): ExposedTask? =
-        Task
-            .selectAll()
-            .where { Task.id eq id }
-            .map {
-                ExposedTask(
-                    it[Task.id],
-                    it[Task.title],
-                    it[Task.completed],
-                )
-            }.firstOrNull()
+        dbQuery {
+            Task
+                .selectAll()
+                .where { Task.id eq id }
+                .map {
+                    ExposedTask(
+                        it[Task.id],
+                        it[Task.title],
+                        it[Task.completed],
+                    )
+                }.firstOrNull()
+        }
 
     override suspend fun readAll(): List<ExposedTask> =
-        transaction {
+        dbQuery {
             Task
                 .selectAll()
                 .map {
@@ -61,7 +63,7 @@ class DBTaskService(
         id: Int,
         task: ExposedTask,
     ) {
-        transaction {
+        dbQuery {
             Task
                 .update({ Task.id eq id }) {
                     it[title] = task.title
